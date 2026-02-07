@@ -126,42 +126,36 @@ def run_option(model_df: pd.DataFrame, sizing: OptionSizing, rates: dict | None 
     return annual
 
 
-import pandas as pd
+def summarize_totals(annual_df: pd.DataFrame) -> dict[str, float]:
+    """Return totals from the 'Total' row if present, else sum across slots."""
+    df = annual_df.copy()
+    if "tod_slot" not in df.columns:
+        return {}
 
-def summarize_totals(annual_df: pd.DataFrame) -> dict:
-    # Prefer Total row if present
-    if "tod_slot" in annual_df.columns and (annual_df["tod_slot"] == "Total").any():
-        t = annual_df.loc[annual_df["tod_slot"] == "Total"].iloc[0]
+    total_row = df[df["tod_slot"].astype(str).str.lower() == "total"]
+    if not total_row.empty:
+        r = total_row.iloc[0]
+        return {
+            "load_kwh": float(r.get("load_kwh", 0.0)),
+            "total_re_kwh": float(r.get("total_re_kwh", 0.0)),
+            "re_percent": float(r.get("re_percent", 0.0)),
+            "grid_kwh": float(r.get("grid_kwh", 0.0)),
+            "total_cost_rs": float(r.get("total_cost_rs", r.get("grid_cost_rs", 0.0))),
+        }
 
-        total_load = float(t.get("load_kwh", 0.0))
-        total_re   = float(t.get("total_re_kwh", 0.0))
-        re_pct     = float(t.get("re_percent", 0.0))
-        grid_imp   = float(t.get("grid_kwh", 0.0))
-
-        total_cost = (
-            float(t.get("solar_cost_rs", 0.0)) +
-            float(t.get("wind_cost_rs", 0.0)) +
-            float(t.get("bess_cost_rs", 0.0)) +
-            float(t.get("grid_cost_rs", 0.0))
-        )
-    else:
-        # Fallback if Total row is missing
-        total_load = float(annual_df.get("load_kwh", pd.Series([0.0])).sum())
-        total_re   = float(annual_df.get("total_re_kwh", pd.Series([0.0])).sum())
-        grid_imp   = float(annual_df.get("grid_kwh", pd.Series([0.0])).sum())
-        re_pct     = (100.0 * (total_load - grid_imp) / total_load) if total_load > 0 else 0.0
-
-        total_cost = (
-            float(annual_df.get("solar_cost_rs", pd.Series([0.0])).sum()) +
-            float(annual_df.get("wind_cost_rs", pd.Series([0.0])).sum()) +
-            float(annual_df.get("bess_cost_rs", pd.Series([0.0])).sum()) +
-            float(annual_df.get("grid_cost_rs", pd.Series([0.0])).sum())
-        )
+    # fallback
+    slot_df = df[df["tod_slot"].astype(str).str.upper().isin(SLOT_ORDER)]
+    load = float(slot_df.get("load_kwh", pd.Series([0.0])).sum())
+    total_re = float(slot_df.get("total_re_kwh", pd.Series([0.0])).sum())
+    grid = float(slot_df.get("grid_kwh", pd.Series([0.0])).sum())
+    total_cost = float(slot_df.get("total_cost_rs", pd.Series([0.0])).sum())
+    re_percent = 100.0 * (1.0 - (grid / load)) if load else 0.0
 
     return {
-        "total_load_kwh": total_load,
+        "load_kwh": load,
         "total_re_kwh": total_re,
-        "re_percent": re_pct,
-        "grid_import_kwh": grid_imp,
+        "re_percent": re_percent,
+        "grid_kwh": grid,
         "total_cost_rs": total_cost,
     }
+
