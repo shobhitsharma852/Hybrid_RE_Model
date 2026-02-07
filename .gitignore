@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+.venv/
+venv/
+.env
+
+# Streamlit
+.streamlit/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs / temp
+*.log
+*.tmp
+
+# Excel (block all)
+*.xlsx
+*.xls
+
+# Allow ONLY the demo excel
+!data/demo/*.xlsx
+!data/demo/*.xls
