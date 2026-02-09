@@ -18,6 +18,19 @@ This project converts a complex Excel model into a **reliable calculation engine
 
 ---
 
+## Solar modeling modes
+
+The app supports two solar calculation modes:
+
+### DC-only mode
+Solar is scaled from DC capacity (MWp) and reduced by a fixed loss/derating.
+
+
+### AC-limited mode
+Inverter is modeled using DC/AC ratio; solar export is clipped at inverter limit.
+
+---
+
 ## Project Structure
 
 ├── core/ # Business logic (single source of truth)

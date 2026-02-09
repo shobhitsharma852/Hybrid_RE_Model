@@ -38,6 +38,19 @@ Both options follow the same calculation pipeline.
 
 ---
 
+### Solar inputs
+
+- **Solar mode:** FT / SAT / EW / None
+- **Solar DC size (MWp):** PV capacity on DC side
+- **Solar modelling:**
+  - **DC-only:** applies loss/derating (%)
+  - **AC-limited:** uses DC/AC ratio to model inverter clipping
+- **DC/AC ratio (AC-limited only):** inverter sizing factor  
+  Inverter size is: `MWac = MWp / (DC/AC)`
+- **Solar loss (%):** used in DC-only mode; disabled in AC-limited mode to avoid double counting
+
+---
+
 ### Tariff Inputs
 All tariffs are Time-of-Day (TOD) based.
 
