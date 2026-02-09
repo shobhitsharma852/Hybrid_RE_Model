@@ -11,7 +11,7 @@ def _fmt_kwh(v: float) -> str:
         v = float(v)
     except Exception:
         return "-"
-    return f"{v:,.0f}\u00A0kWh" # NBSP so it can’t wrap
+    return f"{v:,.0f} kWh"
 
 
 def _fmt_rs(v: float) -> str:
