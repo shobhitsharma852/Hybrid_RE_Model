@@ -21,6 +21,25 @@ from dashboard.services.option_service import load_base_model, run_option, summa
 
 st.set_page_config(page_title="Hybrid RE Options Dashboard", layout="wide")
 
+st.markdown(
+    """
+    <style>
+    /* Remove ellipsis from metric values */
+    div[data-testid="stMetricValue"] {
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+    }
+
+    /* Allow labels to wrap nicely */
+    div[data-testid="stMetricLabel"] {
+        white-space: normal !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 st.title("Hybrid RE Options Dashboard ⚡")
 
 st.divider()
