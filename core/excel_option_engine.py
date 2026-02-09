@@ -35,11 +35,22 @@ class ExcelColMap:
 @dataclass(frozen=True)
 class OptionSizing:
     load_mw: float = 1.0
+
+    # Solar
     solar_mode: str | None = None
-    solar_mw: float = 0.0
+    solar_mw: float = 0.0          # MWp (DC)
     solar_loss: float = 0.0
+
+    # Solar modelling mode:
+    # - "dc_only": Excel parity (no inverter cap)
+    # - "ac_limited": inverter constrained using DC/AC ratio
+    solar_model_mode: str = "dc_only"
+    solar_dcac: float | None = None   # DC/AC ratio (e.g., 1.45, 1.60)
+
+    # Wind
     wind_mw: float = 0.0
     wind_loss: float = 0.0
+
 
 
 # -----------------------------

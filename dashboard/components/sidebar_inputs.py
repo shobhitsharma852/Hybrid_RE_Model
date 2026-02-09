@@ -115,8 +115,32 @@ def render_sidebar(default_excel_path: str) -> SidebarResult:
     load_mw = st.sidebar.number_input("Load (MW)", min_value=0.0, value=1.0, step=0.1)
 
     solar_mode = st.sidebar.selectbox("Solar mode", options=["None", "FT", "SAT", "EW"], index=2)
+
+    solar_model_mode = st.sidebar.selectbox(
+        "Solar modelling",
+        options=["DC-only (Excel parity)", "AC-limited (Inverter constrained)"],
+        index=0,
+    )
+
     solar_dc_mwp = st.sidebar.number_input("Solar DC size (MWp)", min_value=0.0, value=1.74, step=0.01)
+
+    # DC/AC only shown when AC-limited
+    solar_dcac = None
+    if solar_model_mode.startswith("AC-limited"):
+        # sensible default based on mode (SAT ~1.45, FT/EW ~1.60)
+        default_dcac = 1.45 if solar_mode == "SAT" else 1.60
+        solar_dcac = st.sidebar.number_input(
+            "DC / AC ratio",
+            min_value=1.0,
+            max_value=2.0,
+            value=float(default_dcac),
+            step=0.01,
+        )
+        solar_ac_mw = (solar_dc_mwp / solar_dcac) if solar_dcac else 0.0
+        st.sidebar.caption(f"≈ Inverter size: {solar_ac_mw:.2f} MWac")
+
     solar_loss_pct = st.sidebar.number_input("Solar loss (%)", min_value=0.0, max_value=99.0, value=10.0, step=0.5)
+
 
     wind_mw = st.sidebar.number_input("Wind (MW)", min_value=0.0, value=0.0, step=0.1)
     wind_loss_pct = st.sidebar.number_input("Wind loss (%)", min_value=0.0, max_value=99.0, value=0.0, step=0.5)
@@ -134,10 +158,14 @@ def render_sidebar(default_excel_path: str) -> SidebarResult:
         solar_mode=None if solar_mode == "None" else solar_mode,
         solar_mw=float(solar_dc_mwp),
         solar_loss=float(solar_loss_pct) / 100.0,
+
+        solar_model_mode="ac_limited" if solar_model_mode.startswith("AC-limited") else "dc_only",
+        solar_dcac=float(solar_dcac) if solar_dcac is not None else None,
+
         wind_mw=float(wind_mw),
         wind_loss=float(wind_loss_pct) / 100.0,
-        
     )
+
 
     rates = {
         "solar_rate_map": solar_rate_map,
